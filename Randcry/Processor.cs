@@ -44,7 +44,7 @@ namespace Randcry
             {
                 using (BinaryWriter BW = new BinaryWriter(fsStream, Encoding.UTF8))
                 {
-                    IHash hash = HashFactory.XOF.CreateShake_128(32 + 4096);
+                    IHash hash = HashFactory.XOF.CreateShake_128((32 + 4096) * 8);
                     hash.Initialize();
                     hash.TransformBytes(Bucket.ToArray());
                     var Output = hash.TransformFinal();
