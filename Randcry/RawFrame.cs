@@ -5,13 +5,14 @@ using System.Text;
 
 namespace Randcry
 {
+    [Serializable]
     public class RawFrame
     {
         public RawFrame(int Width, int Height)
         {
-            Red = new Channel { Data = new int?[Width * Height] };
-            Green = new Channel { Data = new int?[Width * Height] };
-            Blue = new Channel { Data = new int?[Width * Height] };
+            Red = new Channel(Width, Height);
+            Green = new Channel(Width, Height);
+            Blue = new Channel(Width, Height);
         }
         public Channel Red;
         public Channel Green;
@@ -20,13 +21,19 @@ namespace Randcry
         public bool _Valid = true;
 
     }
+    [Serializable]
     public class Channel
     {
+        public Channel(int Width, int Height)
+        {
+            Data = new int?[Width * Height];
+        }
         public int?[] Data;
         public int? Min;
         public int? Max;
         public int? Sum;
         public double? Mean;
         public int? Zeros;
+        public bool Valid = true;
     }
 }

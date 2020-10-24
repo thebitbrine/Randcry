@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using SharpHash.Base;
 using SharpHash.Interfaces;
+using AForge.Video.DirectShow;
 
 namespace Randcry
 {
@@ -12,9 +14,17 @@ namespace Randcry
         {
             Directory.CreateDirectory("Bins");
 
-            var MainCamera = Camera.GetCameras()[1];
-            Camera.OpenCamera(MainCamera);
-            Console.WriteLine($"Using {MainCamera.Name}");
+            //var rnd = new Random();
+            //var List = new byte[1000000];
+            //rnd.NextBytes(List);
+            //File.WriteAllBytes("test", List);
+
+            var Cameras = Camera.GetCameras();
+            foreach (FilterInfo Camera in Cameras)
+            {
+                Randcry.Camera.OpenCamera(Camera);
+                Console.WriteLine($"Using {Camera.Name}");
+            }
 
         }
     }

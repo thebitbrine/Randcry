@@ -22,6 +22,7 @@ namespace Randcry
             }
             catch (Exception err)
             {
+                Console.WriteLine(err.Message);
             }
 
         }

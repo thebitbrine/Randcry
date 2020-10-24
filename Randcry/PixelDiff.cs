@@ -12,7 +12,7 @@ namespace Randcry
 {
     class PixelDiff
     {
-        public unsafe RawFrame GetDifferenceImage(Bitmap image1, Bitmap image2)
+        public unsafe Channel GetDifferenceImage(Bitmap image1, Bitmap image2)
         {
             if (image1 == null | image2 == null)
                 return null;
@@ -34,24 +34,23 @@ namespace Randcry
 
             int rowPadding = data1.Stride - (image1.Width * 3);
 
-            var Frame = new RawFrame(width, height);
+            var Channel = new Channel(width, height);
 
             int Counter = 0;
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    Frame.Red.Data[Counter] = (data1Ptr[0] - data2Ptr[0]);
-                    data1Ptr++;
-                    data2Ptr++;
-
-                    Frame.Green.Data[Counter] = (data1Ptr[0] - data2Ptr[0]);
-                    data1Ptr++;
-                    data2Ptr++;
-
-                    Frame.Blue.Data[Counter] = (data1Ptr[0] - data2Ptr[0]);
-                    data1Ptr++;
-                    data2Ptr++;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        var DiffVal = data1Ptr[0] - data2Ptr[0];
+                        if (DiffVal != 0)
+                        {
+                            Channel.Data[Counter] = DiffVal;
+                        }
+                        data1Ptr++;
+                        data2Ptr++;
+                    }
                     Counter++;
                 }
 
@@ -62,43 +61,28 @@ namespace Randcry
                 }
             }
 
-
-            Frame.Red.Min = Frame.Red.Data.Min();
-            Frame.Red.Max = Frame.Red.Data.Max();
-            Frame.Red.Sum = Frame.Red.Data.Sum();
-            Frame.Red.Mean = Frame.Red.Data.Average();
-            Frame.Red.Zeros = Frame.Red.Data.Count(x => x == 0);
-
-            if (Frame.Red.Mean > 0.1 /*|| Frame.Red.Mean < -0.1*/)
-                Frame._Valid = false;
-
-            Frame.Green.Min = Frame.Green.Data.Min();
-            Frame.Green.Max = Frame.Green.Data.Max();
-            Frame.Green.Sum = Frame.Green.Data.Sum();
-            Frame.Green.Mean = Frame.Green.Data.Average();
-            Frame.Green.Zeros = Frame.Green.Data.Count(x => x == 0);
-
-            if (Frame.Green.Mean > 0.1 /*|| Frame.Green.Mean < -0.1*/)
-                Frame._Valid = false;
-
-            Frame.Blue.Min = Frame.Blue.Data.Min();
-            Frame.Blue.Max = Frame.Blue.Data.Max();
-            Frame.Blue.Sum = Frame.Blue.Data.Sum();
-            Frame.Blue.Mean = Frame.Blue.Data.Average();
-            Frame.Blue.Zeros = Frame.Blue.Data.Count(x => x == 0);
-
-            if (Frame.Blue.Mean > 0.1 /*|| Frame.Blue.Mean < -0.1*/)
-                Frame._Valid = false;
-
-            Frame._Mean = (Frame.Red.Mean + Frame.Green.Mean + Frame.Blue.Mean) / 3;
-
             image1.UnlockBits(data1);
             image2.UnlockBits(data2);
 
-            if (Frame._Mean > 0.1 /*|| Frame._Mean < -0.1*/)
-                Frame._Valid = false;
+            Channel.Mean = Channel.Data.Average();
 
-            return Frame;
+            if (Channel.Mean > 0.1 || Channel.Mean < -0.1)
+                Channel.Valid = false;
+
+            if (!Channel.Valid)
+                return null;
+
+            //Channel.Min = Channel.Data.Min();
+            //Channel.Max = Channel.Data.Max();
+            //Channel.Sum = Channel.Data.Sum();
+            //Channel.Zeros = Channel.Data.Count(x => x == 0);
+
+            //for (int i = 0; i < Channel.Data.Length; i++)
+            //{
+            //    Channel.Data[i] += (Channel.Min * -1);
+            //}
+            Console.WriteLine("Captured frame...");
+            return Channel;
         }
 
     }

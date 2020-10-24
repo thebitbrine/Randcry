@@ -11,48 +11,52 @@ namespace Randcry
 {
     class Processor
     {
-        public void ProcessBuffer(List<RawFrame> Buffer)
+        public void ProcessBuffer(List<Channel> Buffer)
         {
-            Shuffle(Buffer);
+            //Shuffle(Buffer);
 
             var Bucket = new List<byte>();
             for (int i = 0; i < Buffer.Count; i++)
             {
+                //Shuffle(Buffer[i].Data);
 
-                //Shuffle(Buffer[i].Red.Data);
-                //Shuffle(Buffer[i].Green.Data);
-                //Shuffle(Buffer[i].Blue.Data);
-
-                for (int j = 0; j < Buffer[i].Red.Data.Count(); j++)
+                for (int j = 0; j < Buffer[i].Data.Count(); j++)
                 {
-                    if (Buffer[i].Red.Data[j] != null)
+                    if (Buffer[i].Data[j] != null)
                     {
-                        Bucket.Add((byte)Buffer[i].Red.Data[j]);
-                    }
-                    if (Buffer[i].Green.Data[j] != null)
-                    {
-                        Bucket.Add((byte)Buffer[i].Green.Data[j]);
-                    }
-                    if (Buffer[i].Blue.Data[j] != null)
-                    {
-                        Bucket.Add((byte)Buffer[i].Blue.Data[j]);
+                        Bucket.Add((byte)Buffer[i].Data[j]);
                     }
                 }
             }
 
-            using (FileStream fsStream = new FileStream(Path.Combine("Y:\\Bins", DateTime.Now.ToString("yyyy-MM-dd-HH") + ".raw"), FileMode.Append))
+            using (FileStream fsStream = new FileStream(Path.Combine("Bins", DateTime.Now.ToString("yyyy-MM-dd-HH") + ".raw"), FileMode.Append))
             {
                 using (BinaryWriter BW = new BinaryWriter(fsStream, Encoding.UTF8))
                 {
-                    IHash hash = HashFactory.XOF.CreateShake_128((32 + 4096) * 8);
+                    IHash hash = HashFactory.XOF.CreateShake_256((ulong)Buffer.First().Data.Length /*/ 75*/ * 1);
                     hash.Initialize();
                     hash.TransformBytes(Bucket.ToArray());
                     var Output = hash.TransformFinal();
                     BW.Write(Output.GetBytes());
                     BW.Close();
+
+                    Console.WriteLine("Written bytes.");
                 }
             }
         }
+        public byte[] Crypt(byte[] data)
+        {
+            RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
+            var Keys = new byte[data.Length];
+            provider.GetBytes(Keys);
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                data[i] = (byte)(data[i] ^ Keys[i]);
+            }
+            return data;
+        }
+
         public void Shuffle<T>(IList<T> list)
         {
             RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
