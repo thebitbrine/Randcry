@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using Serilog;
 using SharpHash.Base;
 using SharpHash.Interfaces;
 
@@ -11,38 +12,22 @@ namespace Randcry
 {
     class Processor
     {
-        public void ProcessBuffer(List<Channel> Buffer)
+        public void ProcessBuffer(List<byte> Bucket, ulong HashLength)
         {
-            //Shuffle(Buffer);
-
-            var Bucket = new List<byte>();
-            for (int i = 0; i < Buffer.Count; i++)
+            IHash hash = HashFactory.XOF.CreateShake_256(HashLength);
+            hash.Initialize();
+            hash.TransformBytes(Bucket.ToArray());
+            var Output = hash.TransformFinal().GetBytes();
+            var QT = new QualityTest(Output);
+            if (QT.RunAllTests())
             {
-                //Shuffle(Buffer[i].Data);
-
-                for (int j = 0; j < Buffer[i].Data.Count(); j++)
-                {
-                    if (Buffer[i].Data[j] != null)
-                    {
-                        Bucket.Add((byte)Buffer[i].Data[j]);
-                    }
-                }
+                new Writer().Write(Output);
+            }
+            else
+            {
+                Log.Warning($"Trash random, throwing away.");
             }
 
-            using (FileStream fsStream = new FileStream(Path.Combine("Bins", DateTime.Now.ToString("yyyy-MM-dd-HH") + ".raw"), FileMode.Append))
-            {
-                using (BinaryWriter BW = new BinaryWriter(fsStream, Encoding.UTF8))
-                {
-                    IHash hash = HashFactory.XOF.CreateShake_256((ulong)Buffer.First().Data.Length /*/ 75*/ * 1);
-                    hash.Initialize();
-                    hash.TransformBytes(Bucket.ToArray());
-                    var Output = hash.TransformFinal();
-                    BW.Write(Output.GetBytes());
-                    BW.Close();
-
-                    Console.WriteLine("Written bytes.");
-                }
-            }
         }
         public byte[] Crypt(byte[] data)
         {

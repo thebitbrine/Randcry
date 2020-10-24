@@ -7,6 +7,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Randcry;
+using Serilog;
 
 namespace Randcry
 {
@@ -34,9 +35,10 @@ namespace Randcry
 
             int rowPadding = data1.Stride - (image1.Width * 3);
 
-            var Channel = new Channel(width, height);
+            var Channel = new Channel(width, height, true);
 
             int Counter = 0;
+            var Bucket = new int[width * height * 3];
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -44,14 +46,11 @@ namespace Randcry
                     for (int i = 0; i < 3; i++)
                     {
                         var DiffVal = data1Ptr[0] - data2Ptr[0];
-                        if (DiffVal != 0)
-                        {
-                            Channel.Data[Counter] = DiffVal;
-                        }
+                        Bucket[Counter] = DiffVal;
                         data1Ptr++;
                         data2Ptr++;
+                        Counter++;
                     }
-                    Counter++;
                 }
 
                 if (rowPadding > 0)
@@ -64,13 +63,17 @@ namespace Randcry
             image1.UnlockBits(data1);
             image2.UnlockBits(data2);
 
-            Channel.Mean = Channel.Data.Average();
+
+            Channel.Mean = Bucket.Average();
 
             if (Channel.Mean > 0.1 || Channel.Mean < -0.1)
                 Channel.Valid = false;
 
             if (!Channel.Valid)
+            {
+                Log.Debug($"Bad frame diff, mean: {Channel.Mean}");
                 return null;
+            }
 
             //Channel.Min = Channel.Data.Min();
             //Channel.Max = Channel.Data.Max();
@@ -81,7 +84,9 @@ namespace Randcry
             //{
             //    Channel.Data[i] += (Channel.Min * -1);
             //}
-            Console.WriteLine("Captured frame...");
+
+            Channel.Data = Bucket.Select(x => { return (byte)x; }).ToArray();
+            Log.Debug($"Generated diff from 2 frames, byte count: {Channel.Data.Length}, mean: {Channel.Mean}");
             return Channel;
         }
 

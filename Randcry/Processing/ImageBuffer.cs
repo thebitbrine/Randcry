@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using AForge.Video;
+using Serilog;
 
 namespace Randcry
 {
@@ -15,13 +16,15 @@ namespace Randcry
     {
         public int TotalFrames;
         public int BufferSize = 8;
+        public int ThrowAwayCount = 30;
         public List<Bitmap> Frames = new List<Bitmap>();
-        public List<Channel> Buffer = new List<Channel>();
+        public List<byte> Buffer = new List<byte>();
         public void NewImage(object sender, NewFrameEventArgs eventArgs)
         {
             var image = eventArgs.Frame;
             if (TotalFrames < 30)
             {
+                Log.Debug($"Throwing away frame #{TotalFrames}, {ThrowAwayCount - TotalFrames} more frames to go.");
                 TotalFrames++;
                 return;
             }
@@ -37,13 +40,12 @@ namespace Randcry
                         {
                             if (Buffer.Count >= BufferSize)
                             {
-                                var BufferClone = CloneList(Buffer);
-                                new Thread(() => new Processor().ProcessBuffer(BufferClone)).Start();
+                                new Processor().ProcessBuffer(Buffer, (ulong)Frame.Data.Length);
                                 Buffer.Clear();
                             }
                             else
                             {
-                                Buffer.Add(Frame);
+                                Buffer.AddRange(Frame.Data);
                             }
                         }
                     }

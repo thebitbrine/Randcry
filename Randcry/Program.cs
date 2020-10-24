@@ -5,25 +5,32 @@ using System.Text;
 using SharpHash.Base;
 using SharpHash.Interfaces;
 using AForge.Video.DirectShow;
+using Serilog;
+using Serilog.Sinks.SystemConsole.Themes;
 
 namespace Randcry
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            Directory.CreateDirectory("Bins");
+            Log.Logger = new LoggerConfiguration()
+            //.MinimumLevel.Debug()
+            .WriteTo.Console(theme: AnsiConsoleTheme.Code)
+            .CreateLogger();
 
-            //var rnd = new Random();
-            //var List = new byte[1000000];
-            //rnd.NextBytes(List);
-            //File.WriteAllBytes("test", List);
+            if (!Directory.Exists("Bins"))
+            {
+                Directory.CreateDirectory("Bins");
+                Log.Information("Created Bins directory");
+            }
 
             var Cameras = Camera.GetCameras();
-            foreach (FilterInfo Camera in Cameras)
+
+            for (int i = 0; i < Cameras.Count; i++)
             {
-                Randcry.Camera.OpenCamera(Camera);
-                Console.WriteLine($"Using {Camera.Name}");
+                Randcry.Camera.OpenCamera(Cameras[i]);
+                Log.Information($"Spawned instance for {Cameras[i].Name}-{i}");
             }
 
         }

@@ -24,11 +24,18 @@ namespace Randcry
     [Serializable]
     public class Channel
     {
-        public Channel(int Width, int Height)
+        public Channel(int Width, int Height, bool MergedChannel = false)
         {
-            Data = new int?[Width * Height];
+            if (MergedChannel)
+            {
+                Data = new byte[Width * Height * 3];
+            }
+            else
+            {
+                Data = new byte[Width * Height * 3];
+            }
         }
-        public int?[] Data;
+        public byte[] Data;
         public int? Min;
         public int? Max;
         public int? Sum;
