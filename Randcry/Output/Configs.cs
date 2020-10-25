@@ -19,7 +19,7 @@ namespace Randcry.Output
         }
         public string GetOutputFileName()
         {
-            var OutputFile = Path.Combine(OutputDirectory, DateTime.Now.ToString("yyyy-MM-dd-HH") + ".raw");
+            var OutputFile = Path.Combine(OutputDirectory, DateTime.Now.ToString("yyyy-MM-dd-HH-mm") + ".raw");
             if (!File.Exists(OutputFile))
                 File.WriteAllText(OutputFile, "");
             return OutputFile;
