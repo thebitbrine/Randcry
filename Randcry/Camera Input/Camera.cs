@@ -21,17 +21,21 @@ namespace Randcry
                 var Instance = new Thread(() =>
                 {
                     var videoDevice = new VideoCaptureDevice(Camera.MonikerString);
-                    videoDevice.NewFrame += new ImageBuffer().NewImage;
-                    videoDevice.Start();
-                    Thread.Sleep(2222);
-                    Log.Information($"Initiated {Camera.Name}");
                     if (videoDevice.VideoCapabilities.Any())
                     {
-                        var videoCap = videoDevice.VideoCapabilities[0];
+                        videoDevice.NewFrame += new ImageBuffer().NewImage;
+                        videoDevice.Start();
+                        Thread.Sleep(2222);
+                        Log.Information($"Initiated {Camera.Name}");
+                        var videoCap = videoDevice.VideoCapabilities.OrderByDescending(x => x.FrameSize.Width * x.FrameSize.Height).ThenByDescending(z => z.AverageFrameRate).First();
                         Log.Information($"Max FPS: {videoCap.MaximumFrameRate}");
                         Log.Information($"Avg FPS: {videoCap.AverageFrameRate}");
                         Log.Information($"Bit count: {videoCap.BitCount}");
                         Log.Information($"Frame size: {videoCap.FrameSize.Width}x{videoCap.FrameSize.Height}");
+                    }
+                    else
+                    {
+                        Log.Debug($"Ignored {Camera.Name}, no video capabilities");
                     }
                 });
                 Instance.Name = $"[{Camera.Name}] [{Index}]";
