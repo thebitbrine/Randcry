@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using AForge.Video.DirectShow;
 using Serilog;
 using SharpHash.Base;
 using SharpHash.Interfaces;
@@ -12,7 +13,7 @@ namespace Randcry
 {
     class Processor
     {
-        public void ProcessBuffer(List<byte> Bucket, ulong HashLength)
+        public void ProcessBuffer(List<byte> Bucket, ulong HashLength, VideoCaptureDevice DeviceInfo)
         {
             IHash hash = HashFactory.XOF.CreateShake_256(HashLength);
             hash.Initialize();
@@ -25,7 +26,7 @@ namespace Randcry
             }
             else
             {
-                Log.Warning($"Trash random, throwing away.");
+                Log.Debug($"Trash random, throwing away.");
             }
 
         }

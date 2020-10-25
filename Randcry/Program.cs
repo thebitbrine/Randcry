@@ -7,6 +7,8 @@ using SharpHash.Interfaces;
 using AForge.Video.DirectShow;
 using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
+using Randcry.Output;
+using System.Threading;
 
 namespace Randcry
 {
@@ -19,19 +21,20 @@ namespace Randcry
             .WriteTo.Console(theme: AnsiConsoleTheme.Code)
             .CreateLogger();
 
-            if (!Directory.Exists("Bins"))
-            {
-                Directory.CreateDirectory("Bins");
-                Log.Information("Created Bins directory");
-            }
-
             var Cameras = Camera.GetCameras();
 
             for (int i = 0; i < Cameras.Count; i++)
             {
-                Randcry.Camera.OpenCamera(Cameras[i]);
-                Log.Information($"Spawned instance for {Cameras[i].Name}-{i}");
+                Randcry.Camera.OpenCamera(Cameras[i], i);
+                Log.Information($"Spawned instance for [{Cameras[i].Name}] [{i}]");
             }
+
+            bool Exit = false;
+            do
+            {
+                Console.ReadKey();
+            }
+            while (!Exit);
 
         }
     }

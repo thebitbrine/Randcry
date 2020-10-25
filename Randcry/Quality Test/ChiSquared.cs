@@ -12,7 +12,7 @@ namespace Randcry
 		// Source: "Algorithms in C" - Robert Sedgewick - pp. 517
 		// NB: Sedgewick recommends: "...to be sure, the test should be tried a few times,
 		// since it could be wrong in about one out of ten times."
-		public double IsRandom(byte[] randomNums, int r)
+		public double Calculate(byte[] randomNums, int r)
 		{
 			//Calculate the number of samples - N
 			int N = randomNums.Length;

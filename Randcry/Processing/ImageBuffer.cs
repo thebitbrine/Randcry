@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using AForge.Video;
+using AForge.Video.DirectShow;
 using Serilog;
 
 namespace Randcry
@@ -15,7 +16,7 @@ namespace Randcry
     class ImageBuffer
     {
         public int TotalFrames;
-        public int BufferSize = 8;
+        public int BufferSize = 2;
         public int ThrowAwayCount = 30;
         public List<Bitmap> Frames = new List<Bitmap>();
         public List<byte> Buffer = new List<byte>();
@@ -40,7 +41,7 @@ namespace Randcry
                         {
                             if (Buffer.Count >= BufferSize)
                             {
-                                new Processor().ProcessBuffer(Buffer, (ulong)Frame.Data.Length);
+                                new Processor().ProcessBuffer(Buffer, (ulong)Frame.Data.Length, sender as VideoCaptureDevice);
                                 Buffer.Clear();
                             }
                             else

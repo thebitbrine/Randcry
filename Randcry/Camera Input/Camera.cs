@@ -13,20 +13,25 @@ namespace Randcry
     public static class Camera
     {
         #region Open Scan Camera
-        public static void OpenCamera(FilterInfo Camera)
+        public static void OpenCamera(FilterInfo Camera, int Index)
         {
             try
             {
-                var videoDevice = new VideoCaptureDevice(Camera.MonikerString);
-                videoDevice.NewFrame += new ImageBuffer().NewImage;
-                videoDevice.Start();
-                Thread.Sleep(2222);
-                var videoCap = videoDevice.VideoCapabilities[0];
-                Log.Information($"Initiated {Camera.Name}");
-                Log.Information($"Max FPS: {videoCap.MaximumFrameRate}");
-                Log.Information($"Avg FPS: {videoCap.AverageFrameRate}");
-                Log.Information($"Bit count: {videoCap.BitCount}");
-                Log.Information($"Frame size: {videoCap.FrameSize.Width}x{videoCap.FrameSize.Height}");
+                var Instance = new Thread(() =>
+                {
+                    var videoDevice = new VideoCaptureDevice(Camera.MonikerString);
+                    videoDevice.NewFrame += new ImageBuffer().NewImage;
+                    videoDevice.Start();
+                    Thread.Sleep(2222);
+                    var videoCap = videoDevice.VideoCapabilities[0];
+                    Log.Information($"Initiated {Camera.Name}");
+                    Log.Information($"Max FPS: {videoCap.MaximumFrameRate}");
+                    Log.Information($"Avg FPS: {videoCap.AverageFrameRate}");
+                    Log.Information($"Bit count: {videoCap.BitCount}");
+                    Log.Information($"Frame size: {videoCap.FrameSize.Width}x{videoCap.FrameSize.Height}");
+                });
+                Instance.Name = $"[{Camera.Name}] [{Index}]";
+                Instance.Start();
             }
             catch (Exception err)
             {
@@ -42,6 +47,5 @@ namespace Randcry
         {
             return new FilterInfoCollection(FilterCategory.VideoInputDevice);
         }
-
     }
 }

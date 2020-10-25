@@ -1,4 +1,5 @@
-﻿using Serilog;
+﻿using Randcry.Quality_Test;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,16 +18,24 @@ namespace Randcry
 
         public bool RunAllTests()
         {
-            var Valid = true;
-            if (!MeanValueTest()) { Valid = false; Log.Debug("Failed MeanValueTest"); }
-            if (!ChiSquaredTest()) { Valid = false; Log.Debug("Failed ChiSqauredTest"); }
+            if (!MeanValueTest()) { Log.Debug("Failed MeanValueTest"); return false; }
+            if (!ChiSquaredTest()) { Log.Debug("Failed ChiSqauredTest"); return false; }
+            if (!EntropyTest()) { Log.Debug("Failed EntropyTest"); return false; }
 
-            return Valid;
+            return true;
+        }
+
+        public bool EntropyTest()
+        {
+            var TestResult = Math.Round(new ShannonEntropy().Calculate(Data), 4);
+            Log.Debug($"Entropy bits per byte: {TestResult}");
+            return TestResult >= 7.9996;
+
         }
 
         public bool MeanValueTest()
         {
-            var TestResult = Math.Round(Data.Select(x => { return (int)x; }).Average(), 1);
+            var TestResult = Math.Round(new ArithmeticMean().Calculate(Data), 1);
             Log.Debug($"Arithmetic mean value: {TestResult}");
             //return TestResult >= 127.4 && TestResult <= 127.6;
             return TestResult == 127.5;
@@ -34,7 +43,7 @@ namespace Randcry
 
         public bool ChiSquaredTest()
         {
-            var TestResult = new ChiSquared().IsRandom(Data, 255);
+            var TestResult = new ChiSquared().Calculate(Data, 255);
             Log.Debug($"Chi-Squared value: {TestResult}");
             return TestResult <= 235;
         }
