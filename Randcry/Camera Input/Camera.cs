@@ -33,7 +33,7 @@ namespace Randcry
 
                     Thread.Sleep(2222);
 
-                    Log.Information($"Initiated {Camera.Name}");
+                    Log.Information($"Initiated {Camera.Name} (CamIndex: #{Index})");
                     Log.Information($"Max FPS: {videoCap.MaximumFrameRate}");
                     Log.Information($"Avg FPS: {videoCap.AverageFrameRate}");
                     Log.Information($"Bit count: {videoCap.BitCount}");

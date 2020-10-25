@@ -25,8 +25,8 @@ namespace Randcry
 
             for (int i = 0; i < Cameras.Count; i++)
             {
-                Randcry.Camera.OpenCamera(Cameras[i], i);
-                Log.Information($"Spawned instance for [{Cameras[i].Name}] [{i}]");
+                Camera.OpenCamera(Cameras[i], i);
+                Log.Debug($"Spawned instance for [{Cameras[i].Name}] [{i}]");
             }
 
             bool Exit = false;
