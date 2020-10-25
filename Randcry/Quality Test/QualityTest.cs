@@ -43,7 +43,7 @@ namespace Randcry
 
         public bool ChiSquaredTest()
         {
-            var TestResult = new ChiSquared().Calculate(Data, 255);
+            var TestResult = new ChiSquared().Calculate(Data, 256);
             Log.Debug($"Chi-Squared value: {TestResult}");
             return TestResult <= 235;
         }
