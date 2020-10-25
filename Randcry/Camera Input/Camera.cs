@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using AForge.Video;
@@ -23,12 +24,15 @@ namespace Randcry
                     videoDevice.NewFrame += new ImageBuffer().NewImage;
                     videoDevice.Start();
                     Thread.Sleep(2222);
-                    var videoCap = videoDevice.VideoCapabilities[0];
                     Log.Information($"Initiated {Camera.Name}");
-                    Log.Information($"Max FPS: {videoCap.MaximumFrameRate}");
-                    Log.Information($"Avg FPS: {videoCap.AverageFrameRate}");
-                    Log.Information($"Bit count: {videoCap.BitCount}");
-                    Log.Information($"Frame size: {videoCap.FrameSize.Width}x{videoCap.FrameSize.Height}");
+                    if (videoDevice.VideoCapabilities.Any())
+                    {
+                        var videoCap = videoDevice.VideoCapabilities[0];
+                        Log.Information($"Max FPS: {videoCap.MaximumFrameRate}");
+                        Log.Information($"Avg FPS: {videoCap.AverageFrameRate}");
+                        Log.Information($"Bit count: {videoCap.BitCount}");
+                        Log.Information($"Frame size: {videoCap.FrameSize.Width}x{videoCap.FrameSize.Height}");
+                    }
                 });
                 Instance.Name = $"[{Camera.Name}] [{Index}]";
                 Instance.Start();
