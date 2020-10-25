@@ -21,17 +21,19 @@ namespace Randcry
                 var videoDevice = new VideoCaptureDevice(Camera.MonikerString);
                 if (videoDevice.VideoCapabilities.Any())
                 {
+                    var videoCap = videoDevice.VideoCapabilities
+                      .OrderByDescending(x => x.BitCount)
+                      .ThenByDescending(y => y.AverageFrameRate)
+                      .ThenByDescending(z => z.FrameSize.Width * z.FrameSize.Height)
+                      .First();
+
+                    videoDevice.VideoResolution = videoCap;
                     videoDevice.NewFrame += new ImageBuffer().NewImage;
                     videoDevice.Start();
+
                     Thread.Sleep(2222);
+
                     Log.Information($"Initiated {Camera.Name}");
-
-                    var videoCap = videoDevice.VideoCapabilities
-                    .OrderByDescending(x => x.BitCount)
-                    .ThenByDescending(y => y.AverageFrameRate)
-                    .ThenByDescending(z => z.FrameSize.Width * z.FrameSize.Height)
-                    .First();
-
                     Log.Information($"Max FPS: {videoCap.MaximumFrameRate}");
                     Log.Information($"Avg FPS: {videoCap.AverageFrameRate}");
                     Log.Information($"Bit count: {videoCap.BitCount}");
