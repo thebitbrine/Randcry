@@ -41,7 +41,7 @@ namespace Randcry
                         {
                             if (Buffer.Count >= BufferSize)
                             {
-                                new Processor().ProcessBuffer(Buffer, (ulong)Frame.Data.Length, sender as VideoCaptureDevice);
+                                new Processor().ProcessBuffer(Buffer, (ulong)Frame.Data.Length);
                                 Buffer.Clear();
                             }
                             else
