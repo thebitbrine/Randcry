@@ -13,7 +13,7 @@ namespace Randcry
 {
     class Processor
     {
-        public void ProcessBuffer(List<byte> Bucket, ulong HashLength, VideoCaptureDevice DeviceInfo)
+        public void ProcessBuffer(List<byte> Bucket, ulong HashLength)
         {
             IHash hash = HashFactory.XOF.CreateShake_256(HashLength);
             hash.Initialize();

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using SharpHash.Base;
 using SharpHash.Interfaces;
@@ -17,9 +18,18 @@ namespace Randcry
         static void Main()
         {
             Log.Logger = new LoggerConfiguration()
-            //.MinimumLevel.Debug()
+            .MinimumLevel.Debug()
             .WriteTo.Console(theme: AnsiConsoleTheme.Code)
             .CreateLogger();
+
+            //var rnd  = new Random();
+            //var Bucket = new byte[2048];
+            //for (int i = 0; i < int.MaxValue; i++)
+            //{
+            //    rnd.NextBytes(Bucket);
+            //    new Processor().ProcessBuffer(Bucket.ToList(), (ulong)2048);
+            //    Thread.Sleep(3);
+            //}
 
             var Cameras = Camera.GetCameras();
 
