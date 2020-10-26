@@ -9,12 +9,14 @@ namespace Randcry
 {
     class QualityTest
     {
-        public QualityTest(byte[] Data)
+        public QualityTest(byte[] Data, double QualityMultiplier = 1.0)
         {
             this.Data = Data;
+            this.QualityMultiplier = QualityMultiplier;
         }
 
         private readonly byte[] Data;
+        private readonly double QualityMultiplier;
 
         public bool RunAllTests()
         {
@@ -30,7 +32,7 @@ namespace Randcry
         {
             var TestResult = Math.Round(new ShannonEntropy().Calculate(Data), 4);
             Log.Debug($"Entropy bits per byte: {TestResult}");
-            return TestResult >= 7.9985;
+            return TestResult >= 7.9985 * QualityMultiplier;
 
         }
 
@@ -38,21 +40,21 @@ namespace Randcry
         {
             var TestResult = Math.Round(new ArithmeticMean().Calculate(Data), 1);
             Log.Debug($"Arithmetic mean value: {TestResult}");
-            return Math.Abs(TestResult - 127.5) < 0.2;
+            return Math.Abs(TestResult - 127.5) * QualityMultiplier < 0.2;
         }
 
         public bool ChiSquaredTest()
         {
             var TestResult = new ChiSquared().Calculate(Data, 256);
             Log.Debug($"Chi-Squared value: {TestResult}");
-            return TestResult <= 235;
+            return TestResult * QualityMultiplier <= 235;
         }
 
         public bool SerialCorrelationTest()
         {
             var TestResult = Math.Round(new SerialCorrelation().Calculate(Data), 2);
             Log.Debug($"Serial correlation coefficient: {TestResult}");
-            return TestResult < 0.01 && TestResult > -0.01;
+            return TestResult < 0.01 * QualityMultiplier && TestResult > -0.01 * QualityMultiplier;
 
         }
 
