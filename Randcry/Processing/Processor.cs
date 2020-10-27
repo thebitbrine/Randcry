@@ -5,6 +5,7 @@ using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using AForge.Video.DirectShow;
+using Randcry.Output;
 using Serilog;
 using SharpHash.Base;
 using SharpHash.Interfaces;
@@ -13,26 +14,26 @@ namespace Randcry
 {
     class Processor
     {
-        public void ProcessBuffer(List<byte> Bucket, ulong HashLength)
+        public void ProcessBuffer(List<byte> Bucket, ulong HashLength, VideoCaptureDevice Device)
         {
-            IHash hash = HashFactory.XOF.CreateShake_256(HashLength);
+            var hash = HashFactory.XOF.CreateShake_256(HashLength);
             hash.Initialize();
             hash.TransformBytes(Bucket.ToArray());
             var Output = hash.TransformFinal().GetBytes();
-            var QT = new QualityTest(Output);
+            var QT = new QualityTest(Output, new Configs().GetOutputFileName(Device));
             if (QT.RunAllTests())
             {
-                new Writer().Write(Output);
+                new Writer().Write(Output, Device);
             }
             else
             {
-                Log.Debug($"Trash random, throwing away.");
+                Log.Debug("Trash random, throwing away.");
             }
 
         }
         public byte[] Crypt(byte[] data)
         {
-            RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
+            var provider = new RNGCryptoServiceProvider();
             var Keys = new byte[data.Length];
             provider.GetBytes(Keys);
 
@@ -43,22 +44,7 @@ namespace Randcry
             return data;
         }
 
-        public void Shuffle<T>(IList<T> list)
-        {
-            RNGCryptoServiceProvider provider = new RNGCryptoServiceProvider();
-            int n = list.Count;
-            while (n > 1)
-            {
-                byte[] box = new byte[4];
-                do provider.GetBytes(box);
-                while (!(BitConverter.ToUInt32(box, 0) < n * (uint.MaxValue / n)));
-                int k = (int)(BitConverter.ToUInt32(box, 0) % n);
-                n--;
-                T value = list[k];
-                list[k] = list[n];
-                list[n] = value;
-            }
-        }
+       
 
     }
 }

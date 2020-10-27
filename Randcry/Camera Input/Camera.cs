@@ -8,13 +8,14 @@ using System.Threading;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using Serilog;
+using Randcry.Output;
 
 namespace Randcry
 {
     public static class Camera
     {
         #region Open Scan Camera
-        public static void OpenCamera(FilterInfo Camera, int Index)
+        public static VideoCaptureDevice OpenCamera(FilterInfo Camera, int Index)
         {
             try
             {
@@ -33,11 +34,20 @@ namespace Randcry
 
                     Thread.Sleep(2222);
 
+                    Log.Information("");
+                    Log.Information($"---------------------------------------------------");
                     Log.Information($"Initiated {Camera.Name} (CamIndex: #{Index})");
+                    Log.Information($"CamID: {videoDevice.SourceObject.GetHashCode():X}");
                     Log.Information($"Max FPS: {videoCap.MaximumFrameRate}");
                     Log.Information($"Avg FPS: {videoCap.AverageFrameRate}");
                     Log.Information($"Bit count: {videoCap.BitCount}");
                     Log.Information($"Frame size: {videoCap.FrameSize.Width}x{videoCap.FrameSize.Height}");
+                    Log.Information($"---------------------------------------------------");
+                    Log.Information("");
+#if DEBUG
+                    new Thread(() => new Analyzer(null).ContinuousAnalysis(videoDevice)).Start();
+#endif
+                    return videoDevice;
                 }
                 else
                 {
@@ -48,7 +58,7 @@ namespace Randcry
             {
                 Log.Error(err, $"Failed to initiate {Camera.Name}");
             }
-
+            return null;
         }
 
 

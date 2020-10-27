@@ -2,11 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading;
 using AForge.Video;
 using AForge.Video.DirectShow;
 using Serilog;
@@ -22,6 +17,7 @@ namespace Randcry
         public List<byte> Buffer = new List<byte>();
         public void NewImage(object sender, NewFrameEventArgs eventArgs)
         {
+            var Device = sender as VideoCaptureDevice;
             var image = eventArgs.Frame;
             if (TotalFrames < 30)
             {
@@ -41,7 +37,7 @@ namespace Randcry
                         {
                             if (Buffer.Count >= BufferSize)
                             {
-                                new Processor().ProcessBuffer(Buffer, (ulong)Frame.Data.Length);
+                                new Processor().ProcessBuffer(Buffer, (ulong)Frame.Data.Length, Device);
                                 Buffer.Clear();
                             }
                             else
@@ -58,14 +54,7 @@ namespace Randcry
                 }
             }
         }
-        public static List<T> CloneList<T>(List<T> oldList)
-        {
-            BinaryFormatter formatter = new BinaryFormatter();
-            MemoryStream stream = new MemoryStream();
-            formatter.Serialize(stream, oldList);
-            stream.Position = 0;
-            return (List<T>)formatter.Deserialize(stream);
-        }
+      
     }
 }
 

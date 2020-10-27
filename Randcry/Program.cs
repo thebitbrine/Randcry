@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using SharpHash.Base;
 using SharpHash.Interfaces;
@@ -10,6 +11,7 @@ using Serilog;
 using Serilog.Sinks.SystemConsole.Themes;
 using Randcry.Output;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Randcry
 {
@@ -18,34 +20,58 @@ namespace Randcry
         static void Main()
         {
             Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
+            //.MinimumLevel.Debug()
             .WriteTo.Console(theme: AnsiConsoleTheme.Code)
             .CreateLogger();
 
-            //var rnd  = new Random();
-            //var Bucket = new byte[2048];
-            //for (int i = 0; i < int.MaxValue; i++)
-            //{
-            //    rnd.NextBytes(Bucket);
-            //    new Processor().ProcessBuffer(Bucket.ToList(), (ulong)2048);
-            //    Thread.Sleep(3);
-            //}
 
             var Cameras = Camera.GetCameras();
-
+            var LiveCameras = new List<VideoCaptureDevice>();
             for (int i = 0; i < Cameras.Count; i++)
             {
-                Camera.OpenCamera(Cameras[i], i);
-                Log.Debug($"Spawned instance for [{Cameras[i].Name}] [{i}]");
+                var CurrentCamera = Camera.OpenCamera(Cameras[i], i);
+                if (CurrentCamera != null)
+                {
+                    LiveCameras.Add(CurrentCamera);
+                    Log.Debug($"Spawned instance for [{Cameras[i].Name}] [{i}]");
+                }
             }
 
-            bool Exit = false;
-            do
+            while (true)
             {
-                Console.ReadKey();
-            }
-            while (!Exit);
+                var Key = Console.ReadKey(true).Key;
+                switch (Key)
+                {
+                    case ConsoleKey.A:
+                        List<string> AnalyzedFiles = new List<string>();
+                        foreach (var VideoDevice in LiveCameras)
+                        {
+                            try
+                            {
+                                if (VideoDevice.VideoCapabilities.Any())
+                                {
+                                    var CurrentFile = new Configs().GetOutputFileName(VideoDevice);
+                                    if (!AnalyzedFiles.Contains(CurrentFile))
+                                    {
+                                        var Analyzer = new Analyzer(CurrentFile);
+                                        var AnalysisResults = Analyzer.AnalyzeSample(CurrentFile);
+                                        Analyzer.PrintAnalysisReport(AnalysisResults);
+                                        AnalyzedFiles.Add(CurrentFile);
+                                    }
+                                }
+                            }
+                            catch { }
 
+                        }
+                        break;
+
+                    case ConsoleKey.C:
+                        Console.Clear();
+                        break;
+
+                }
+                Thread.Sleep(222);
+            }
         }
     }
 }
