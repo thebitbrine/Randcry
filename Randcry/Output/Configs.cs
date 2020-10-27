@@ -26,7 +26,7 @@ namespace Randcry.Output
             //var OutputFile = Path.Combine(OutputDirectory, $"{Device.SourceObject.GetHashCode():X}-{Guid.NewGuid()}{DateTime.Now:yyyy-MM-dd-HH-mm}.raw");
             //var OutputFile = Path.Combine(OutputDirectory, $"{DateTime.Now:yyyy-MM-dd-HH-mm}.raw");
 
-            var OutputFile = Path.Combine(OutputDirectory, $"RandCry-{DateTime.Now:yyyy-MM-dd-HH-mm}-{((int)Math.Round((double)DateTime.Now.Second/10)) * 10}.bin");
+            var OutputFile = Path.Combine(OutputDirectory, $"RandCry-{long.Parse(DateTime.Now.ToString("yyyyMMddHHmm") + ((int)Math.Round((double)DateTime.Now.Second/10)) * 10).GetHashCode():X}.bin");
 
 
             //if (!File.Exists(OutputFile))
