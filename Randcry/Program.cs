@@ -50,7 +50,7 @@ namespace Randcry
                             {
                                 if (VideoDevice.VideoCapabilities.Any())
                                 {
-                                    var CurrentFile = new Configs().GetOutputFileName(VideoDevice);
+                                    var CurrentFile = new Configs().GetOutputFilePath(VideoDevice);
                                     if (!AnalyzedFiles.Contains(CurrentFile))
                                     {
                                         var Analyzer = new Analyzer(CurrentFile);

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using AForge.Video.DirectShow;
+using Randcry.Extensions;
 using Randcry.Output;
 using static Randcry.Extensions.NumericalOperations;
 
@@ -39,7 +40,7 @@ namespace Randcry
         {
             if (File.Exists(RandFile))
             {
-                var RandBytes = File.ReadAllBytes(RandFile);
+                var RandBytes = RandFile.ReadBytes();
                 if (RandBytes.Length > 0)
                 {
                     var TotalLength = RandBytes.Length + Data.Length;

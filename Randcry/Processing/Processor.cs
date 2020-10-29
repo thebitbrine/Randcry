@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using AForge.Video.DirectShow;
 using Randcry.Output;
 using Serilog;
@@ -20,10 +22,11 @@ namespace Randcry
             hash.Initialize();
             hash.TransformBytes(Bucket.ToArray());
             var Output = hash.TransformFinal().GetBytes();
-            var QT = new QualityTest(Output, new Configs().GetOutputFileName(Device));
+            var QT = new QualityTest(Output, new Configs().GetOutputFilePath(Device));
             if (QT.RunAllTests())
             {
                 new Writer().Write(Output, Device);
+                new Thread(() => new SendToRemoteServer().Upload(Output, Device)).Start();
             }
             else
             {

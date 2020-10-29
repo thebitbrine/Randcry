@@ -13,12 +13,12 @@ namespace Randcry
     {
         public void Write(byte[] Data, VideoCaptureDevice Device)
         {
-            var OutputFile = new Configs().GetOutputFileName(Device);
+            var OutputFile = new Configs().GetOutputFilePath(Device);
             for (int i = 0; i < 5; i++)
             {
                 try
                 {
-                    using FileStream fsStream = new FileStream(OutputFile, FileMode.Append, FileAccess.Write);
+                    using FileStream fsStream = new FileStream(OutputFile, FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
                     using BinaryWriter BW = new BinaryWriter(fsStream, Encoding.UTF8);
                     BW.Write(Data);
                     BW.Flush();

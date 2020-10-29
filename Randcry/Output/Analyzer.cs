@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using AForge.Video.DirectShow;
+using Randcry.Extensions;
 using static Randcry.Extensions.ByteArray;
 
 namespace Randcry.Output
@@ -24,7 +25,7 @@ namespace Randcry.Output
             Thread.Sleep(10000);
             while (true)
             {
-                var Results = AnalyzeSample(new Configs().GetOutputFileName(Device));
+                var Results = AnalyzeSample(new Configs().GetOutputFilePath(Device));
                 if (Results != null)
                 {
                     PrintAnalysisReport(Results);
@@ -37,7 +38,7 @@ namespace Randcry.Output
             }
         }
 
-        public void PrintAnalysisReport(AnalisysResults Results)
+        public void PrintAnalysisReport(AnalysisResults Results)
         {
             Log.Information("");
             Log.Information("==================ANALYSIS REPORT==================");
@@ -51,27 +52,12 @@ namespace Randcry.Output
             Log.Information("");
         }
 
-        public AnalisysResults AnalyzeSample(string SamplePath)
+        public AnalysisResults AnalyzeSample(string SamplePath)
         {
             byte[] RandBytes = null;
             try
             {
-                using var FS = new FileStream(SamplePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-                RandBytes = File.ReadAllBytes(SamplePath);
-
-                var bytes = new byte[FS.Length];
-                var numBytesToRead = (int)FS.Length;
-                var numBytesRead = 0;
-                while (numBytesToRead > 0)
-                {
-                    var n = FS.Read(bytes, numBytesRead, numBytesToRead);
-
-                    if (n == 0)
-                        break;
-
-                    numBytesRead += n;
-                    numBytesToRead -= n;
-                }
+                RandBytes = SamplePath.ReadBytes();
             }
             catch (Exception ex)
             {
@@ -80,7 +66,7 @@ namespace Randcry.Output
             if (RandBytes == null || RandBytes.Length == 0)
                 return null;
 
-            return new AnalisysResults()
+            return new AnalysisResults()
             {
                 FileName = SamplePath,
                 SampleLength = RandBytes.Length,
@@ -94,7 +80,7 @@ namespace Randcry.Output
 
     }
 
-    public class AnalisysResults
+    public class AnalysisResults
     {
         public string FileName;
         public double ChiSquaredValue;
