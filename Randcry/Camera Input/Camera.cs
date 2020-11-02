@@ -14,7 +14,6 @@ namespace Randcry
 {
     public static class Camera
     {
-        #region Open Scan Camera
         public static VideoCaptureDevice OpenCamera(FilterInfo Camera, int Index)
         {
             try
@@ -32,7 +31,8 @@ namespace Randcry
                     videoDevice.NewFrame += new ImageBuffer().NewImage;
                     videoDevice.Start();
 
-                    Thread.Sleep(2222);
+                    while(videoDevice.SourceObject == null)
+                        Thread.Sleep(33);
 
                     Log.Information("");
                     Log.Information($"---------------------------------------------------");
@@ -61,8 +61,6 @@ namespace Randcry
             return null;
         }
 
-
-        #endregion
 
         public static FilterInfoCollection GetCameras()
         {
